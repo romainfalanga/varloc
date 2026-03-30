@@ -1125,6 +1125,7 @@ h1 em, h2 em {
   /* Mobile sticky summary panel */
   .simulator-summary.summary-pinned .summary-card {
     position: fixed;
+    top: auto;
     bottom: 0;
     left: 0;
     right: 0;
@@ -1145,6 +1146,7 @@ h1 em, h2 em {
   }
   .simulator-summary.summary-unpinning .summary-card {
     position: fixed;
+    top: auto;
     bottom: 0;
     left: 0;
     right: 0;
