@@ -277,9 +277,19 @@
               <option value="autre">Autre</option>
             </select>
           </div>
+          <div class="form-simulator-recap" id="formSimulatorRecap" style="display:none;">
+            <div class="form-recap-header">
+              <span class="form-recap-icon">&#128230;</span>
+              <h4>Articles s&eacute;lectionn&eacute;s pour la location</h4>
+              <button type="button" class="form-recap-clear" id="formRecapClear" title="Retirer la s&eacute;lection">&times;</button>
+            </div>
+            <div class="form-recap-items" id="formRecapItems"></div>
+            <div class="form-recap-totals" id="formRecapTotals"></div>
+          </div>
+          <input type="hidden" id="formRecapData" name="simulatorRecap" value="">
           <div class="form-group">
-            <label for="message">Votre message</label>
-            <textarea id="message" name="message" rows="5" placeholder="D&eacute;crivez votre &eacute;v&eacute;nement et vos besoins..."></textarea>
+            <label for="message">Votre message (optionnel)</label>
+            <textarea id="message" name="message" rows="4" placeholder="Pr&eacute;cisez vos besoins, lieu de livraison, horaires..."></textarea>
           </div>
           <button type="submit" class="btn btn-primary btn-glow">
             <span>Envoyer ma demande</span>
