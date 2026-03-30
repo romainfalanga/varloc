@@ -153,6 +153,9 @@
     // Init sticky summary behavior
     initStickySummary();
 
+    // Init form recap handlers
+    initFormRecapHandlers();
+
     // Click on row toggles checkbox
     container.querySelectorAll('.sim-item').forEach(item => {
       item.addEventListener('click', function(e) {
@@ -309,6 +312,128 @@
     }
 
     summaryFinal.textContent = formatPrice(finalPrice) + ' €';
+  }
+
+  function getSelectedItemsData() {
+    var selectedItems = [];
+    var total = 0;
+    var eligibleTotal = 0;
+    var eligibleCount = 0;
+
+    for (var id in state) {
+      var s = state[id];
+      if (!s.checked) continue;
+      var product = findProduct(id);
+      if (!product) continue;
+
+      var itemPrice;
+      if (product.hasOptions && s.selectedOption !== null) {
+        itemPrice = product.options[s.selectedOption].price;
+      } else if (product.quantityBased) {
+        itemPrice = product.price * s.quantity;
+      } else {
+        itemPrice = product.price;
+      }
+
+      var label = product.name;
+      if (product.quantityBased && s.quantity) label += ' (x' + s.quantity + ')';
+      if (product.hasOptions) label += ' - ' + product.options[s.selectedOption].label;
+
+      selectedItems.push({ name: label, price: itemPrice });
+      total += itemPrice;
+      if (product.discountEligible) {
+        eligibleTotal += itemPrice;
+        eligibleCount++;
+      }
+    }
+
+    var percent = getDiscountPercent(eligibleCount);
+    var savings = eligibleTotal * (percent / 100);
+    var finalPrice = total - savings;
+
+    return {
+      items: selectedItems,
+      total: total,
+      discountPercent: percent,
+      discountAmount: savings,
+      finalPrice: finalPrice
+    };
+  }
+
+  function populateFormRecap() {
+    var data = getSelectedItemsData();
+    var recapEl = document.getElementById('formSimulatorRecap');
+    var itemsEl = document.getElementById('formRecapItems');
+    var totalsEl = document.getElementById('formRecapTotals');
+    var hiddenInput = document.getElementById('formRecapData');
+    if (!recapEl || !itemsEl || !totalsEl) return;
+
+    if (data.items.length === 0) {
+      recapEl.style.display = 'none';
+      if (hiddenInput) hiddenInput.value = '';
+      return;
+    }
+
+    // Build items HTML
+    var html = '';
+    for (var i = 0; i < data.items.length; i++) {
+      html += '<div class="form-recap-item">';
+      html += '<span class="form-recap-item-name">' + data.items[i].name + '</span>';
+      html += '<span class="form-recap-item-price">' + formatPrice(data.items[i].price) + ' \u20ac</span>';
+      html += '</div>';
+    }
+    itemsEl.innerHTML = html;
+
+    // Build totals HTML
+    var totalsHtml = '';
+    totalsHtml += '<div class="form-recap-line"><span>' + data.items.length + ' article(s)</span><span>' + formatPrice(data.total) + ' \u20ac</span></div>';
+    if (data.discountPercent > 0) {
+      totalsHtml += '<div class="form-recap-line discount"><span>Remise ' + data.discountPercent + '%</span><span>- ' + formatPrice(data.discountAmount) + ' \u20ac</span></div>';
+    }
+    totalsHtml += '<div class="form-recap-line total"><span>Prix final estim\u00e9</span><span>' + formatPrice(data.finalPrice) + ' \u20ac</span></div>';
+    totalsEl.innerHTML = totalsHtml;
+
+    recapEl.style.display = '';
+
+    // Build hidden field data for form submission
+    var textData = 'DEMANDE DE LOCATION\n';
+    textData += '---\n';
+    for (var j = 0; j < data.items.length; j++) {
+      textData += data.items[j].name + ' : ' + formatPrice(data.items[j].price) + ' \u20ac\n';
+    }
+    textData += '---\n';
+    textData += 'Total avant remise : ' + formatPrice(data.total) + ' \u20ac\n';
+    if (data.discountPercent > 0) {
+      textData += 'Remise : ' + data.discountPercent + '% (-' + formatPrice(data.discountAmount) + ' \u20ac)\n';
+    }
+    textData += 'Prix final estim\u00e9 : ' + formatPrice(data.finalPrice) + ' \u20ac';
+    if (hiddenInput) hiddenInput.value = textData;
+  }
+
+  function initFormRecapHandlers() {
+    // Intercept "Demander un devis" click
+    var devisBtn = document.querySelector('#simulatorSummary .btn-primary');
+    if (devisBtn) {
+      devisBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        populateFormRecap();
+        var contactSection = document.getElementById('contact');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    // Clear recap button
+    var clearBtn = document.getElementById('formRecapClear');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        var recapEl = document.getElementById('formSimulatorRecap');
+        var hiddenInput = document.getElementById('formRecapData');
+        if (recapEl) recapEl.style.display = 'none';
+        if (hiddenInput) hiddenInput.value = '';
+      });
+    }
   }
 
   function findProduct(id) {

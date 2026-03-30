@@ -128,8 +128,14 @@
   if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      alert('Merci pour votre demande ! Nous vous recontacterons dans les plus brefs d\u00e9lais.');
+      var recapData = document.getElementById('formRecapData');
+      var hasRecap = recapData && recapData.value.length > 0;
+      var msgType = hasRecap ? 'Demande de location' : 'Demande de renseignements';
+      alert('Merci pour votre ' + msgType.toLowerCase() + ' ! Nous vous recontacterons dans les plus brefs d\u00e9lais.');
       contactForm.reset();
+      var recapEl = document.getElementById('formSimulatorRecap');
+      if (recapEl) recapEl.style.display = 'none';
+      if (recapData) recapData.value = '';
     });
   }
 
