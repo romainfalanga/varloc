@@ -4,6 +4,63 @@
 
   const state = {};
 
+  function initStickySummary() {
+    var simulatorSection = document.getElementById('simulator');
+    var contactSection = document.getElementById('contact');
+    var summaryEl = document.getElementById('simulatorSummary');
+    if (!simulatorSection || !contactSection || !summaryEl) return;
+
+    var isPinned = false;
+    var isMobile = window.innerWidth <= 968;
+
+    function check() {
+      if (!isMobile) {
+        if (isPinned) unpin();
+        return;
+      }
+
+      var simRect = simulatorSection.getBoundingClientRect();
+      var contactRect = contactSection.getBoundingClientRect();
+      var vh = window.innerHeight;
+
+      // Pin when: simulator is in view AND contact section hasn't entered
+      var simInView = simRect.top < vh * 0.5 && simRect.bottom > vh * 0.3;
+      var contactNotYet = contactRect.top > vh * 0.75;
+      var shouldPin = simInView && contactNotYet;
+
+      if (shouldPin && !isPinned) {
+        pin();
+      } else if (!shouldPin && isPinned) {
+        unpin();
+      }
+    }
+
+    function pin() {
+      isPinned = true;
+      summaryEl.classList.remove('summary-unpinning');
+      summaryEl.classList.add('summary-pinned');
+      simulatorSection.classList.add('has-pinned-summary');
+    }
+
+    function unpin() {
+      isPinned = false;
+      summaryEl.classList.add('summary-unpinning');
+      summaryEl.classList.remove('summary-pinned');
+      simulatorSection.classList.remove('has-pinned-summary');
+      setTimeout(function() {
+        summaryEl.classList.remove('summary-unpinning');
+      }, 350);
+    }
+
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', function() {
+      isMobile = window.innerWidth <= 968;
+      check();
+    });
+
+    check();
+  }
+
   function initSimulator() {
     const container = document.getElementById('simulatorProducts');
     if (!container) return;
@@ -92,6 +149,9 @@
     // Attach event listeners
     container.addEventListener('change', handleChange);
     container.addEventListener('input', handleInput);
+
+    // Init sticky summary behavior
+    initStickySummary();
 
     // Click on row toggles checkbox
     container.querySelectorAll('.sim-item').forEach(item => {

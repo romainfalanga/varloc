@@ -778,7 +778,6 @@ h1 em, h2 em {
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 40px;
-  align-items: start;
 }
 
 .simulator-products {
@@ -1122,6 +1121,46 @@ h1 em, h2 em {
   .summary-card {
     position: static;
   }
+
+  /* Mobile sticky summary panel */
+  .simulator-summary.summary-pinned .summary-card {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 33.33vh;
+    z-index: 100;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+    border: none;
+    border-top: 2px solid var(--accent);
+    overflow-y: auto;
+    margin: 0;
+    padding: 20px 24px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: summarySlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .simulator.has-pinned-summary {
+    padding-bottom: calc(33.33vh + 24px);
+  }
+  .simulator-summary.summary-unpinning .summary-card {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 33.33vh;
+    z-index: 100;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+    border: none;
+    border-top: 2px solid var(--accent);
+    overflow-y: auto;
+    margin: 0;
+    padding: 20px 24px;
+    pointer-events: none;
+    animation: summarySlideDown 0.35s ease-in forwards;
+  }
+
   .about-content {
     grid-template-columns: 1fr;
     gap: 40px;
@@ -1454,6 +1493,28 @@ h1 em, h2 em {
   .footer { padding: 36px 0 20px; }
   .footer-content { gap: 20px; padding-bottom: 20px; }
   .logo { font-size: 1.5rem; }
+}
+
+/* ========== Summary slide animations ========== */
+@keyframes summarySlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes summarySlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }
 
 /* ========== Touch device optimizations ========== */
